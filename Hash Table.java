@@ -88,25 +88,6 @@ class TimeMap {
     }
 }
 
-
-// 621
-public class Solution {
-    public int leastInterval(char[] tasks, int n) {
-        HashMap<Integer, Integer> map = new HashMap<>();
-        int maxF = 0;
-        for(char a : tasks){
-            int b = a-'A';
-            map.put(b,map.getOrDefault(b,0)+1);
-            maxF = Math.max(maxF, map.get(b));
-        }
-        int res = (maxF-1)*(n+1);
-        for(int a : map.keySet()){
-            if(map.get(a) ==  maxF) res++;
-        }
-        return Math.max(tasks.length, res);
-    }
-}
-
 // 692
 class Solution {
     public List<String> topKFrequent(String[] words, int k) {
