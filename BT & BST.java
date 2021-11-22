@@ -179,3 +179,120 @@ class Solution {
         return n1;
     }
 }
+
+// 98
+class Solution {
+    public boolean isValidBST(TreeNode root) {
+        return helper(root, null, null);
+    }
+    
+    private boolean helper(TreeNode node, Integer max, Integer min) {
+        if (node == null) {
+            return true;
+        }
+        if (max != null && node.val >= max) {
+            return false;
+        }
+        if (min != null && node.val <= min) {
+            return false;
+        }
+        return helper(node.left, node.val, min) && helper(node.right, max, node.val);
+    }
+}
+
+// 700
+class Solution {
+    public TreeNode searchBST(TreeNode root, int target) {
+        if (root == null || root.val == target) {
+            return root;
+        }
+        if (target < root.val) {
+            return searchBST(root.left, target);
+        }
+        return searchBST(root.right, target);
+    }
+}
+
+// 938
+class Solution {
+    public int rangeSumBST(TreeNode root, int L, int R) {
+        if (root == null) return 0; // base case.
+        if (root.val < L) return rangeSumBST(root.right, L, R); // left branch excluded.
+        if (root.val > R) return rangeSumBST(root.left, L, R); // right branch excluded.
+        return root.val + rangeSumBST(root.right, L, R) + rangeSumBST(root.left, L, R); // count in both children.        
+    }
+}
+
+// 173
+class BSTIterator {
+    Stack<TreeNode> stack;
+    
+    public BSTIterator(TreeNode root) {
+        stack = new Stack<>();
+        while (root != null) {
+            stack.push(root);
+            root = root.left;
+        }
+    }
+    
+    public int next() {
+        TreeNode node = stack.pop();
+        TreeNode temp = node.right;
+        while (temp != null) {
+            stack.push(temp);
+            temp = temp.left;
+        }
+        return node.val;
+    }
+    
+    public boolean hasNext() {
+        return !stack.isEmpty();
+    }
+}
+
+// 701
+class Solution {
+    public TreeNode insertIntoBST(TreeNode root, int val) {
+        if (root == null) {
+            return new TreeNode(val);
+        }
+        if (val > root.val) {
+            root.right = insertIntoBST(root.right, val);
+        } else {
+            root.left = insertIntoBST(root.left, val);
+        }
+        return root;        
+    }
+}
+
+// 450
+class Solution {
+    public TreeNode deleteNode(TreeNode root, int key) {
+        if(root == null){
+            return null;
+        }
+        if(key < root.val){
+            root.left = deleteNode(root.left, key);
+        }else if(key > root.val){
+            root.right = deleteNode(root.right, key);
+        }else{
+            if(root.left == null){
+                return root.right;
+            }else if(root.right == null){
+                return root.left;
+            }
+
+            TreeNode minNode = findMin(root.right);
+            root.val = minNode.val;
+            root.right = deleteNode(root.right, root.val);
+        }
+        return root;
+    }
+
+    private TreeNode findMin(TreeNode node){
+        while(node.left != null){
+            node = node.left;
+        }
+        return node;
+    }
+}
