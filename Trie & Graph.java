@@ -268,4 +268,180 @@ class FileSystem {
     }
 }
 
-// 
+// 133
+class Solution {
+    public Node cloneGraph(Node node) {
+        if (node == null) {
+            return node;
+        }
+        Map<Node, Node> map = new HashMap<>();
+        return helper(node, map);
+    }
+    
+    private Node helper(Node node, Map<Node, Node> map) {
+        if (map.containsKey(node)) {
+            return map.get(node);
+        }
+        Node copy = new Node(node.val);
+        map.put(node, copy);
+        for (Node neighbor : node.neighbors) {
+            copy.neighbors.add(helper(neighbor, map));
+        }
+        return copy;
+    }
+}
+
+// 323
+public class Solution {
+    public int countComponents(int n, int[][] edges) {
+        List<Integer>[] graph = new List[n];
+        for (int i = 0; i < n; i++) graph[i] = new ArrayList<>();
+        for (int[] e : edges) {
+            graph[e[0]].add(e[1]);
+            graph[e[1]].add(e[0]);
+        }
+        int components = 0;
+        boolean[] visited = new boolean[n];
+        for (int v = 0; v < n; v++) components += dfs(v, graph, visited);
+        return components;
+    }
+    int dfs(int u, List<Integer>[] graph, boolean[] visited) {
+        if (visited[u]) return 0;
+        visited[u] = true;
+        for (int v : graph[u]) dfs(v, graph, visited);
+        return 1;
+    }
+}
+
+// 787
+class Solution {
+    public int findCheapestPrice(int n, int[][] flights, int src, int dst, int K) {
+        Map<Integer, Map<Integer, Integer>> prices = new HashMap<>();
+        for (int[] f : flights) {
+            if (!prices.containsKey(f[0])) {
+                prices.put(f[0], new HashMap<>());
+            }
+            prices.get(f[0]).put(f[1], f[2]);
+        }
+        
+        Queue<int[]> pq = new PriorityQueue<>((a, b) -> (Integer.compare(a[0], b[0])));
+        pq.add(new int[] {0, src, K + 1});
+        while (!pq.isEmpty()) {
+            int[] top = pq.poll();
+            int price = top[0];
+            int city = top[1];
+            int stops = top[2];
+            if (city == dst) {
+                return price;
+            }
+            if (stops > 0) {
+                Map<Integer, Integer> adj = prices.getOrDefault(city, new HashMap<>());
+                for (int a : adj.keySet()) {
+                    pq.add(new int[] {price + adj.get(a), a, stops - 1});
+                }
+            }
+        }
+        return -1;        
+    }
+}
+
+// 1192
+class Solution {
+    public List<List<Integer>> criticalConnections(int n, List<List<Integer>> connections) {
+        List<Integer>[] graph = new ArrayList[n];
+        for (int i = 0; i < n; i++) {
+            graph[i] = new ArrayList<>();
+        }
+        for(List<Integer> oneConnection :connections) {
+            graph[oneConnection.get(0)].add(oneConnection.get(1));
+            graph[oneConnection.get(1)].add(oneConnection.get(0));
+        }
+        HashSet<List<Integer>> connectionsSet = new HashSet<>(connections);
+        int[] rank = new int[n];
+        Arrays.fill(rank, -2);
+        dfs(graph, 0, 0, rank, connectionsSet);
+        return new ArrayList<>(connectionsSet);
+    }
+    
+    int dfs(List<Integer>[] graph, int node, int depth, int[] rank, HashSet<List<Integer>> connectionsSet){
+        if (rank[node]>=0){
+            return rank[node]; // already visited node. return its rank
+        }
+        rank[node] = depth;
+        int minDepthFound = depth; // can be Integer.MAX_VALUE also.
+        for(Integer neighbor: graph[node]){
+            if (rank[neighbor] == depth-1){ // ignore parent
+                continue;
+            }
+            int minDepth = dfs(graph, neighbor, depth+1, rank, connectionsSet);
+            minDepthFound = Math.min(minDepthFound, minDepth);
+            if (minDepth <= depth){
+                // to avoid the sorting just try to remove both combinations. of (x,y) and (y,x)
+                connectionsSet.remove(Arrays.asList(node, neighbor)); 
+                connectionsSet.remove(Arrays.asList(neighbor, node)); 
+            }
+        }
+        return minDepthFound;
+    }
+}
+
+// 332
+public class Solution {
+    private void dfs(List<String> itinerary, Map<String, PriorityQueue<String>> graph, String source) {
+
+       /**
+        * if now more destination possible from this source, then we are at the bottom most.
+        */
+       if (graph.get(source) == null || graph.get(source).isEmpty()) {
+           itinerary.add(source);
+           return;
+       }
+
+
+       /**
+        * Try all the destination from this source incrementally.
+        * This is important for input like [[JFK, KUL], [JFK, NRT], [NRT, JFK]]
+        * because once you reach Kul, you can't go anywhere but we have tickets left, so we should go NTR first
+        */
+       while (!graph.get(source).isEmpty()) {
+           String nextDestination = graph.get(source).poll();
+           dfs(itinerary, graph, nextDestination);
+       }
+       /**
+        * We are at the bottom, traverse back
+        */
+       itinerary.add(source);
+
+   }
+   
+    public List<String> findItinerary(List<List<String>> tickets) {
+
+       if (tickets == null || tickets.isEmpty())
+           return Collections.EMPTY_LIST;
+
+       Map<String, PriorityQueue<String>> graph = buildGraph(tickets);
+
+       List<String> itinerary = new ArrayList<>(graph.size());
+       dfs(itinerary, graph, "JFK");
+
+       Collections.reverse(itinerary);
+       return itinerary;
+   }
+    
+    private Map<String, PriorityQueue<String>> buildGraph(List<List<String>> tickets) {
+
+        Map<String, PriorityQueue<String>> graph = new HashMap<>();
+
+        for (List<String> ticket : tickets) {
+            String source = ticket.get(0);
+            String destination = ticket.get(1);
+
+            if (!graph.containsKey(source))
+                graph.put(source, new PriorityQueue<>());
+
+            graph.get(source).add(destination);
+
+        }
+        return graph;
+    }
+}
