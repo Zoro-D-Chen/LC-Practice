@@ -279,44 +279,23 @@ class Solution {
 
 // 139
 class Solution {
-    private int[][] dirs = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
-    
-    public boolean exist(char[][] board, String word) {
-        int row = board.length;
-        int col = board[0].length;
-        for (int i = 0; i < row; i++) {
-            for (int j = 0; j < col; j++) {
-                if (helper(board, row, col, i, j, 0, word.toCharArray())) {
-                    return true;
-                }
-            }
-        }
-        return false;
+    public boolean wordBreak(String s, List<String> wordDict) {
+        return wordBreakMemo(s, new HashSet<>(wordDict), 0, new Boolean[s.length()]);
     }
-    
-    private boolean helper(char[][] board, int row, int col, int x, int y, int index, char[] arr) {
-        if (index == arr.length) {
+
+    private boolean wordBreakMemo(String s, Set<String> wordDict, int start, Boolean[] memo) {
+        if (start == s.length()) {
             return true;
         }
-        
-        if (x < 0 || x >= row || y < 0 || y >= col || arr[index] != board[x][y]) {
-            return false;
+        if (memo[start] != null) {
+            return memo[start];
         }
-        
-        char temp = board[x][y];
-        board[x][y] = '.';
-        
-        for (int[] dir : dirs) {
-            int nextX = x + dir[0];
-            int nextY = y + dir[1];
-            if (helper(board, row, col, nextX, nextY, index + 1, arr)) {
-                return true;
+        for (int end = start + 1; end <= s.length(); end++) {
+            if (wordDict.contains(s.substring(start, end)) && wordBreakMemo(s, wordDict, end, memo)) {
+                return memo[start] = true;
             }
         }
-        
-        board[x][y] = temp;
-        
-        return false;
+        return memo[start] = false;
     }
 }
 
